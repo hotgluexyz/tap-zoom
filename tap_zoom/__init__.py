@@ -3,6 +3,7 @@
 import sys
 import json
 import argparse
+import logging
 
 import singer
 from singer import metadata
@@ -12,6 +13,7 @@ from tap_zoom.discover import discover
 from tap_zoom.sync import sync
 
 LOGGER = singer.get_logger()
+logging.getLogger('backoff').setLevel(logging.CRITICAL)
 
 REQUIRED_CONFIG_KEYS = [
 ]

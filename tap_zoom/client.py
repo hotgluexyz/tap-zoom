@@ -17,7 +17,7 @@ class Server429Error(Exception):
     pass
 
 def log_backoff_attempt(details):
-    LOGGER.info("Error detected communicating with Zoom, triggering backoff: %d try",
+    LOGGER.info("Failed to communicate with Zoom, triggering backoff: %d try",
                 details.get("tries"))
 
 class ZoomClient(object):
