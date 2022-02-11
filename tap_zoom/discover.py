@@ -45,6 +45,13 @@ def get_schemas():
         pk = get_pk(stream_name)
 
         metadata = []
+        metadata.append({
+            'metadata': {
+                'table-key-properties': pk
+            },
+            'breadcrumb': []
+        })
+
         for prop, json_schema in schema['properties'].items():
             if prop in pk:
                 inclusion = 'automatic'
