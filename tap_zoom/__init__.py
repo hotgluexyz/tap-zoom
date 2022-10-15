@@ -19,11 +19,12 @@ REQUIRED_CONFIG_KEYS = [
 ]
 
 def do_discover(client):
-    LOGGER.info('Testing authentication')
-    try:
-        client.get('users')
-    except:
-        raise Exception('Error could not authenticate with Zoom')
+    # NOTE: Commenting out because hotglue does not save the new refresh_token properly
+    # LOGGER.info('Testing authentication')
+    # try:
+    #     client.get('users')
+    # except:
+    #     raise Exception('Error could not authenticate with Zoom')
 
     LOGGER.info('Starting discover')
     catalog = discover()
