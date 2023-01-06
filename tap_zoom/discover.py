@@ -3,15 +3,12 @@ import json
 
 from singer.catalog import Catalog, CatalogEntry, Schema
 
-from tap_zoom.endpoints import ENDPOINTS_CONFIG
+# from tap_zoom.endpoints import ENDPOINTS_CONFIG
 
 SCHEMAS = {}
 FIELD_METADATA = {}
 
-def get_pk(stream_name, endpoints=None):
-    if not endpoints:
-        endpoints = ENDPOINTS_CONFIG
-
+def get_pk(stream_name, endpoints):
     for endpoint_stream_name, endpoint in endpoints.items():
         if stream_name == endpoint_stream_name:
             return endpoint['pk']
@@ -24,7 +21,7 @@ def get_pk(stream_name, endpoints=None):
 def get_abs_path(path):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
 
-def get_schemas():
+def get_schemas(endpoints):
     global SCHEMAS, FIELD_METADATA
 
     if SCHEMAS:
@@ -42,7 +39,9 @@ def get_schemas():
             
         SCHEMAS[stream_name] = schema
 
-        pk = get_pk(stream_name)
+        pk = get_pk(stream_name,endpoints=endpoints)
+
+        if not pk: continue
 
         metadata = []
         metadata.append({
@@ -67,13 +66,14 @@ def get_schemas():
 
     return SCHEMAS, FIELD_METADATA
 
-def discover():
-    schemas, field_metadata = get_schemas()
+def discover(endpoints):
+    schemas, field_metadata = get_schemas(endpoints)
     catalog = Catalog([])
 
     for stream_name, schema_dict in schemas.items():
         schema = Schema.from_dict(schema_dict)
-        pk = get_pk(stream_name)
+        pk = get_pk(stream_name,endpoints=endpoints)
+        if not pk:continue
         metadata = field_metadata[stream_name]
 
         catalog.streams.append(CatalogEntry(
