@@ -5,7 +5,7 @@ from singer import metrics, metadata, Transformer
 from singer.bookmarks import set_currently_syncing
 
 from tap_zoom.discover import discover
-from tap_zoom.endpoints import ENDPOINTS_CONFIG
+# from tap_zoom.endpoints import ENDPOINTS_CONFIG
 
 LOGGER = singer.get_logger()
 
@@ -123,9 +123,9 @@ def sync(client, catalog, state):
     for selected_stream in selected_streams:
         selected_stream_names.append(selected_stream.tap_stream_id)
 
-    required_streams = get_required_streams(ENDPOINTS_CONFIG, selected_stream_names)
+    required_streams = get_required_streams(client.endpoints, selected_stream_names)
 
-    for stream_name, endpoint in ENDPOINTS_CONFIG.items():
+    for stream_name, endpoint in client.endpoints.items():
         if stream_name in required_streams:
             update_current_stream(state, stream_name)
             sync_endpoint(client,

@@ -27,7 +27,7 @@ def do_discover(client):
     #     raise Exception('Error could not authenticate with Zoom')
 
     LOGGER.info('Starting discover')
-    catalog = discover()
+    catalog = discover(client.endpoints)
     json.dump(catalog.to_dict(), sys.stdout, indent=2)
     LOGGER.info('Finished discover')
 
@@ -42,3 +42,7 @@ def main():
             sync(client,
                  parsed_args.catalog,
                  parsed_args.state)
+
+
+if __name__ == '__main__':
+    main()

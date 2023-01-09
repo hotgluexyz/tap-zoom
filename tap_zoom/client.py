@@ -7,6 +7,7 @@ import singer
 from singer import metrics
 from ratelimit import limits, sleep_and_retry, RateLimitException
 from requests.exceptions import ConnectionError
+from tap_zoom.endpoints import ENDPOINTS_CONFIG
 
 LOGGER = singer.get_logger()
 
@@ -29,6 +30,11 @@ class ZoomClient(object):
         self.__config_path = config_path
         self.__access_token = None
         self.__use_jwt = False
+
+        if config.get('old_endpoints'):
+            self.endpoints = ENDPOINTS_CONFIG[1]
+        else: 
+            self.endpoints = ENDPOINTS_CONFIG[0]
 
         jwt = config.get('jwt')
         if jwt:
