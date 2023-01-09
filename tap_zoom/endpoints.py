@@ -92,9 +92,10 @@ ENDPOINTS_CONFIG_0 = {
         }
     },
     'meetings': {
-        'data-key': 'meetings',
+        'data_key': 'meetings',
         'path': 'metrics/meetings',
         'pk': ['id'],
+        'paginate':False,
         'provides': {
             'meeting_uuid': 'uuid',
             'meeting_id' : 'id'

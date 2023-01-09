@@ -3,7 +3,9 @@ import re
 import singer
 from singer import metrics, metadata, Transformer
 from singer.bookmarks import set_currently_syncing
-
+from datetime import datetime, timedelta
+from dateutil.parser import parse
+from dateutil.relativedelta import relativedelta
 from tap_zoom.discover import discover
 # from tap_zoom.endpoints import ENDPOINTS_CONFIG
 
@@ -48,19 +50,52 @@ def sync_endpoint(client,
             'page_number': page_number
         }
 
-        data = client.get(path,
-                          params=params,
-                          endpoint=stream_name,
-                          ignore_zoom_error_codes=endpoint.get('ignore_zoom_error_codes', []),
-                          ignore_http_error_codes=endpoint.get('ignore_http_error_codes', []))
+        records = []
+        if stream_name == 'meetings':
+            params['type'] = "past"
+            start = "2022-01-01"
 
-        if data is None:
-            return
+            start_dt = parse(start)
+            start_dt = datetime(start_dt.year, start_dt.month, 1)
+            while True:
+                from_date = start_dt.strftime("%Y-%m-01")
+                to_date = start_dt + relativedelta(months=1) - timedelta(1)
+                to_date = to_date.strftime("%Y-%m-%d")
 
-        if 'data_key' in endpoint:
-            records = data[endpoint['data_key']]
-        else:
-            records = [data]
+                params['from'] = from_date
+                params['to'] = to_date
+
+                month_data = client.get(path,
+                                params=params,
+                                endpoint=stream_name,
+                                ignore_zoom_error_codes=endpoint.get('ignore_zoom_error_codes', []),
+                                ignore_http_error_codes=endpoint.get('ignore_http_error_codes', []))
+
+                start_dt = start_dt + relativedelta(months=1)
+                if start_dt >= datetime.utcnow():
+                    break
+
+                if month_data is None:
+                    continue
+                
+                if 'data_key' in endpoint:
+                    records += month_data[endpoint['data_key']]
+                else:
+                    records += [month_data]
+        else: 
+            data = client.get(path,
+                            params=params,
+                            endpoint=stream_name,
+                            ignore_zoom_error_codes=endpoint.get('ignore_zoom_error_codes', []),
+                            ignore_http_error_codes=endpoint.get('ignore_http_error_codes', []))
+
+            if data is None:
+                return
+
+            if 'data_key' in endpoint:
+                records = data[endpoint['data_key']]
+            else:
+                records = [data]
 
         with metrics.record_counter(stream_name) as counter:
             with Transformer() as transformer:
