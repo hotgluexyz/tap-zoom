@@ -30,11 +30,15 @@ class ZoomClient(object):
         self.__config_path = config_path
         self.__access_token = None
         self.__use_jwt = False
+        self.start_date = None
 
         if config.get('old_endpoints'):
             self.endpoints = ENDPOINTS_CONFIG[1]
         else: 
             self.endpoints = ENDPOINTS_CONFIG[0]
+
+        if config.get('start_date'):
+            self.start_date = config['start_date']
 
         jwt = config.get('jwt')
         if jwt:

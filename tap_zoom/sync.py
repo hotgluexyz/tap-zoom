@@ -53,7 +53,9 @@ def sync_endpoint(client,
         records = []
         if stream_name == 'meetings':
             params['type'] = "past"
-            start = "2022-01-01"
+            start = client.start_date
+            if start is None:
+                start = "2012-01-01"
 
             start_dt = parse(start)
             start_dt = datetime(start_dt.year, start_dt.month, 1)
