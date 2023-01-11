@@ -9,6 +9,8 @@ from dateutil.relativedelta import relativedelta
 from tap_zoom.discover import discover
 # from tap_zoom.endpoints import ENDPOINTS_CONFIG
 
+import dateutil.parser
+
 LOGGER = singer.get_logger()
 
 def get_bookmark(state, stream_name, default):
@@ -53,14 +55,16 @@ def sync_endpoint(client,
         records = []
         if stream_name == 'meetings':
             params['type'] = "past"
-            start = client.start_date
-            if start is None:
-                start = "2012-01-01"
+            start = client.start_date.replace("Z", "")
+            today = datetime.utcnow() + relativedelta(days=1)
+            oldest_date_available = (today - relativedelta(months=6)).strftime("%Y-%m-%d")
+            if start is None or dateutil.parser.parse(start) < dateutil.parser.parse(oldest_date_available):
+                start = oldest_date_available
 
             start_dt = parse(start)
-            start_dt = datetime(start_dt.year, start_dt.month, 1)
+            start_dt = datetime(start_dt.year, start_dt.month, start_dt.day)
             while True:
-                from_date = start_dt.strftime("%Y-%m-01")
+                from_date = start_dt.strftime("%Y-%m-%d")
                 to_date = start_dt + relativedelta(months=1) - timedelta(1)
                 to_date = to_date.strftime("%Y-%m-%d")
 
@@ -74,8 +78,6 @@ def sync_endpoint(client,
                                 ignore_http_error_codes=endpoint.get('ignore_http_error_codes', []))
 
                 start_dt = start_dt + relativedelta(months=1)
-                if start_dt >= datetime.utcnow():
-                    break
 
                 if month_data is None:
                     continue
@@ -84,6 +86,9 @@ def sync_endpoint(client,
                     records += month_data[endpoint['data_key']]
                 else:
                     records += [month_data]
+                
+                if start_dt > datetime.utcnow():
+                    break
         else: 
             data = client.get(path,
                             params=params,
