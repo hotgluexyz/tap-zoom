@@ -75,6 +75,7 @@ class ZoomClient(object):
         with open(self.__config_path) as file:
             config = json.load(file)
         config['refresh_token'] = data['refresh_token']
+        config['access_token'] = data['access_token']
         with open(self.__config_path, 'w') as file:
             json.dump(config, file, indent=2)
 
