@@ -131,11 +131,11 @@ ENDPOINTS_CONFIG_0 = {
             },
             'report_meetings': {
                 'paginate': False,
-                'path': 'report/meetings/{meeting_id}',
+                'path': 'report/meetings/{meeting_uuid}',
                 'pk': ['uuid']
             },
             'report_meeting_participants': {
-                'path': 'report/meetings/{meeting_id}/participants',
+                'path': 'report/meetings/{meeting_uuid}/participants',
                 'pk': ['meeting_id', 'id'],
                 'data_key': 'participants'
             }
