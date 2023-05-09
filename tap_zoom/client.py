@@ -8,7 +8,7 @@ from singer import metrics
 from ratelimit import limits, sleep_and_retry, RateLimitException
 from requests.exceptions import ConnectionError
 from tap_zoom.endpoints import ENDPOINTS_CONFIG
-
+import time
 LOGGER = singer.get_logger()
 
 class Server5xxError(Exception):
@@ -20,6 +20,9 @@ class Server429Error(Exception):
 def log_backoff_attempt(details):
     LOGGER.info("Failed to communicate with Zoom, triggering backoff: %d try",
                 details.get("tries"))
+    if details.get("tries")==7:
+        time.sleep(60)
+
 
 class ZoomClient(object):
     BASE_URL = 'https://api.zoom.us/v2/'
@@ -134,7 +137,6 @@ class ZoomClient(object):
             raise Server429Error(response.text)
 
         response.raise_for_status()
-
         return response.json()
 
     def get(self, path, **kwargs):
