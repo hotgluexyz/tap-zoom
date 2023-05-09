@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import backoff
 import requests
 import singer
+import sys
 from singer import metrics
 from ratelimit import limits, sleep_and_retry, RateLimitException
 from requests.exceptions import ConnectionError
@@ -18,7 +19,8 @@ class Server429Error(Exception):
     pass
 
 def log_backoff_attempt(details):
-    LOGGER.info("Failed to communicate with Zoom, triggering backoff: %d try",
+    LOGGER.info("Failed to communicate with Zoom, triggering backoff: %s seconds, %d try",
+                details['wait'],
                 details.get("tries"))
 
 class ZoomClient(object):
@@ -79,11 +81,27 @@ class ZoomClient(object):
         with open(self.__config_path, 'w') as file:
             json.dump(config, file, indent=2)
 
+    def retry_after_wait_gen(**kwargs):
+        # This is called in an except block so we can retrieve the exception
+        # and check it.
+        exc_info = sys.exc_info()
+        message = str(exc_info[1])
+
+        if 'per-minute' in message:
+            yield 60
+        else:
+            yield 5
+
     @backoff.on_exception(backoff.expo,
-                          (Server5xxError, RateLimitException, Server429Error, ConnectionError),
+                          (Server5xxError, RateLimitException, ConnectionError),
                           max_tries=8,
                           on_backoff=log_backoff_attempt,
                           factor=3)
+    @backoff.on_exception(retry_after_wait_gen,
+                          Server429Error,
+                          max_tries=8,
+                          jitter=backoff.random_jitter,
+                          on_backoff=log_backoff_attempt)
     @limits(calls=300, period=60)
     def request(self,
                 method,
