@@ -148,7 +148,12 @@ class ZoomClient(object):
             raise Server5xxError()
 
         if response.status_code == 429:
-            LOGGER.warn('Rate limit hit - 429')
+            response_header = dict(response.headers)
+            if "x-ratelimit-type" in response_header:
+                rate_limit_text = f"Rate Limit Type: {response_header['x-ratelimit-type']}]"
+                rate_limit_text = f"{rate_limit_text} Limit Remaining: {response_header['x-ratelimit-remaining']}"
+                LOGGER.warn(rate_limit_text)
+            LOGGER.warn(response.text)
             raise Server429Error(response.text)
 
         response.raise_for_status()
