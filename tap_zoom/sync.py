@@ -78,7 +78,7 @@ def sync_endpoint(client,
                                 ignore_http_error_codes=endpoint.get('ignore_http_error_codes', []))
 
                 #Break the loop if limit has reached for the path
-                if "ZOHO_LIMIT_REACHED" in month_data:
+                if "ZOOM_LIMIT_REACHED" in month_data:
                     break
 
                 start_dt = start_dt + relativedelta(months=1)
@@ -103,7 +103,7 @@ def sync_endpoint(client,
             if data is None:
                 return
             #End sync for stream if limit is reached for the stream
-            if "ZOHO_LIMIT_REACHED" in data:
+            if "ZOOM_LIMIT_REACHED" in data:
                 break
             
             if 'data_key' in endpoint:

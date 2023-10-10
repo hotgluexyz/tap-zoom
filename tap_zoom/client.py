@@ -155,7 +155,7 @@ class ZoomClient(object):
                 LOGGER.warn(rate_limit_text)
                 if int(response_header['x-ratelimit-remaining']) <=0:
                     LOGGER.info(f"Gracefully ending sync for {response.request.url}")
-                    return {"ZOHO_LIMIT_REACHED"}
+                    return {"ZOOM_LIMIT_REACHED"}
 
             LOGGER.warn(response.text)
             raise Server429Error(response.text)
