@@ -77,14 +77,15 @@ def sync_endpoint(client,
                                 ignore_zoom_error_codes=endpoint.get('ignore_zoom_error_codes', []),
                                 ignore_http_error_codes=endpoint.get('ignore_http_error_codes', []))
 
-                #Break the loop if limit has reached for the path
-                if "ZOOM_LIMIT_REACHED" in month_data:
-                    break
 
                 start_dt = start_dt + relativedelta(months=1)
 
                 if month_data is None:
                     continue
+
+                #Break the loop if limit has reached for the path
+                if "ZOOM_LIMIT_REACHED" in month_data:
+                    break
                 
                 if 'data_key' in endpoint:
                     records += month_data[endpoint['data_key']]
