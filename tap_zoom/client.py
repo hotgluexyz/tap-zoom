@@ -140,6 +140,9 @@ class ZoomClient(object):
                 if response.status_code in ignore_http_error_codes or \
                     (response.status_code == 400 and response.json().get('code') in ignore_zoom_error_codes):
                     metrics_status_code = 200
+                #If account doesn't support an endpoint. No point in keep retrying. 
+                if "API is only available" in response.text:
+                    raise Exception(f"Error: {response.text} for URL: {response.request.url}")    
                 return None
 
             timer.tags[metrics.Tag.http_status_code] = metrics_status_code
