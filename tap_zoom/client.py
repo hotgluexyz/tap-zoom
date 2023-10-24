@@ -66,9 +66,12 @@ class ZoomClient(object):
                 'refresh_token': self.__refresh_token,
                 'grant_type': 'refresh_token'
             })
+        try:
+            self.__access_token = data['access_token']
+            self.__refresh_token = data['refresh_token']
+        except:
+            LOGGER.error("Access token was not properly retrieved. Please check the credentials and try again.")
 
-        self.__access_token = data['access_token']
-        self.__refresh_token = data['refresh_token']
 
         self.__expires_at = datetime.utcnow() + \
             timedelta(seconds=data['expires_in'] - 10) # pad by 10 seconds for clock drift
@@ -113,7 +116,7 @@ class ZoomClient(object):
         if url is None and \
             self.__use_jwt == False and \
             (self.__access_token is None or \
-             self.__expires_at <= datetime.utcnow()):
+            self.__expires_at <= datetime.utcnow()):
             self.refresh_access_token()
 
         if url is None and path:
