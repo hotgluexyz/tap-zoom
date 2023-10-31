@@ -71,7 +71,7 @@ class ZoomClient(object):
             self.__access_token = data['access_token']
             self.__refresh_token = data['refresh_token']
         except:
-            LOGGER.error("Access token or Refresh token cannot be empty. Please check credentials and try again.")
+            LOGGER.error("fFailed to refresh OAuth tokens, response from Zoom API = [{data}]")
 
         self.__expires_at = datetime.utcnow() + \
             timedelta(seconds=data['expires_in'] - 10) # pad by 10 seconds for clock drift
