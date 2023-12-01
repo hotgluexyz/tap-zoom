@@ -103,7 +103,7 @@ class ZoomClient(object):
     @backoff.on_exception(retry_after_wait_gen,
                           Server429Error,
                           max_tries=8,
-                          jitter=backoff.random_jitter,
+                          factor=3,
                           on_backoff=log_backoff_attempt)
     @limits(calls=300, period=60)
     def request(self,
