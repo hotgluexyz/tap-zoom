@@ -88,6 +88,10 @@ ENDPOINTS_CONFIG_0 = {
                         'data_key': 'participants'
                     }
                 }
+            },
+            'user_details': {
+                'path': 'users/{user_id}',
+                'pk': ['id']
             }
         }
     },
@@ -291,8 +295,12 @@ ENDPOINTS_CONFIG_1 = {
                         'data_key': 'participants'
                     }
                 }
+            },
+            'user_details': {
+                'path': 'users/{user_id}',
+                'pk': ['id']
             }
-        }
+        },
     }
 }
 
