@@ -33,7 +33,9 @@ def sync_endpoint(client,
                   selected_streams,
                   stream_name,
                   endpoint,
-                  key_bag):
+                  key_bag,
+                  additional_params={}
+                  ):
     persist = endpoint.get('persist', True)
 
     if persist:
@@ -51,6 +53,8 @@ def sync_endpoint(client,
             'page_size': page_size,
             'page_number': page_number
         }
+        if additional_params:
+            params.update(additional_params)
 
         records = []
         if stream_name == 'meetings':
@@ -178,13 +182,26 @@ def sync(client, catalog, state):
     for stream_name, endpoint in client.endpoints.items():
         if stream_name in required_streams:
             update_current_stream(state, stream_name)
-            sync_endpoint(client,
+            if stream_name == "users":
+                for user_status in ["active","inactive","pending"]:
+                    sync_endpoint(client,
                           catalog,
                           state,
                           required_streams,
                           selected_stream_names,
                           stream_name,
                           endpoint,
-                          {})
+                          {},
+                          {"status":user_status}
+                          )
+            else:            
+                sync_endpoint(client,
+                            catalog,
+                            state,
+                            required_streams,
+                            selected_stream_names,
+                            stream_name,
+                            endpoint,
+                            {})
 
     update_current_stream(state)
