@@ -157,9 +157,10 @@ class ZoomClient(object):
             response_header = dict(response.headers)
             if "x-ratelimit-type" in response_header:
                 rate_limit_text = f"Rate Limit Type: {response_header['x-ratelimit-type']}]"
-                rate_limit_text = f"{rate_limit_text} Limit Remaining: {response_header['x-ratelimit-remaining']}"
+                rate_limit_remaining = response_header.get('x-ratelimit-remaining')
+                rate_limit_text = f"{rate_limit_text} Limit Remaining: {rate_limit_remaining}"
                 LOGGER.warn(rate_limit_text)
-                if int(response_header['x-ratelimit-remaining']) <=0:
+                if rate_limit_remaining and int(rate_limit_remaining) <=0:
                     LOGGER.info(f"Gracefully ending sync for {response.request.url}")
                     return {"ZOOM_LIMIT_REACHED"}
 
