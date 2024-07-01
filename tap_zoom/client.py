@@ -33,6 +33,7 @@ class ZoomClient(object):
         self.__access_token = None
         self.__use_jwt = False
         self.start_date = None
+        self.ignore_permission_error = config.get("ignore_permission_error", False)
 
         if config.get('old_endpoints'):
             self.endpoints = ENDPOINTS_CONFIG[1]
@@ -145,7 +146,10 @@ class ZoomClient(object):
                     metrics_status_code = 200
                 #If account doesn't support an endpoint. No point in keep retrying. 
                 if "API is only available" in response.text:
-                    raise Exception(f"Error: {response.text} for URL: {response.request.url}")    
+                    if self.ignore_permission_error:
+                        return "Unable to fetch data due to permission error."  
+                    else:
+                        raise Exception(f"Error: {response.text} for URL: {response.request.url}")  
                 return None
 
             timer.tags[metrics.Tag.http_status_code] = metrics_status_code
