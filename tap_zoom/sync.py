@@ -81,6 +81,8 @@ def sync_endpoint(client,
                                 ignore_zoom_error_codes=endpoint.get('ignore_zoom_error_codes', []),
                                 ignore_http_error_codes=endpoint.get('ignore_http_error_codes', []))
 
+                if month_data == "Unable to fetch data due to permission error.":
+                    break
 
                 start_dt = start_dt + relativedelta(months=1)
 
@@ -104,6 +106,9 @@ def sync_endpoint(client,
                             endpoint=stream_name,
                             ignore_zoom_error_codes=endpoint.get('ignore_zoom_error_codes', []),
                             ignore_http_error_codes=endpoint.get('ignore_http_error_codes', []))
+            
+            if month_data == "Unable to fetch data due to permission error.":
+                break
             
             if data is None:
                 return
